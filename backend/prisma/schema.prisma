@@ -6,10 +6,44 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  cameras   Camera[]
+}
+
+model Camera {
+  id         String   @id @default(cuid())
+  name       String
+  location   String?
+  rtspUrl    String
+  enabled    Boolean  @default(true)
+  fps        Int      @default(15)
+  running    Boolean  @default(false)
+  owner      User     @relation(fields: [ownerId], references: [id])
+  ownerId    String
+  alerts     Alert[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Alert {
+  id         String   @id @default(cuid())
+  camera     Camera   @relation(fields: [cameraId], references: [id])
+  cameraId   String
+  detectedAt DateTime @default(now())
+  label      String   @default("face")
+  score      Float?
+  snapshotUrl String?
+  payload    Json?
 }

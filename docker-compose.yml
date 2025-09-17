@@ -1,0 +1,65 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: skylark
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  mediamtx:
+    image: bluenviron/mediamtx:latest
+    ports:
+      - "8554:8554"    # RTSP
+      - "8889:8889"    # RTMP
+      - "8189:8189/udp" # Pion RTP
+      - "8888:8888"    # WebRTC HTTP
+    environment:
+      MTX_PROTOCOLS: "udp,tcp"
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/skylark?schema=public
+      JWT_SECRET: supersecretjwt
+      WORKER_URL: http://worker:8081
+      PORT: 8080
+      WS_PORT: 8082
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+      - "8082:8082"
+
+  worker:
+    build: ./worker
+    restart: unless-stopped
+    environment:
+      BACKEND_URL: http://backend:8080
+      PORT: 8081
+    depends_on:
+      - backend
+    ports:
+      - "8081:8081"
+
+  frontend:
+    build: ./frontend
+    profiles: ["ui"]
+    environment:
+      VITE_API_URL: http://localhost:8080
+      VITE_WS_URL: ws://localhost:8082
+      VITE_MEDIA_BASE: http://localhost:8888
+    depends_on:
+      - backend
+      - mediamtx
+    ports:
+      - "5173:5173"
+
+volumes:
+  db_data: {}

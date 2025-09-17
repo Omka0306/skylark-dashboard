@@ -1,22 +1,37 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
-  "main": "index.js",
+  "name": "skylark-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev --name init",
+    "prisma:deploy": "prisma migrate deploy",
+    "seed": "tsx prisma/seed.ts",
+    "lint": "eslint ."
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
-    "@prisma/client": "^6.16.2",
-    "bcrypt": "^6.0.0",
-    "hono": "^4.9.7",
+    "@hono/node-server": "^1.12.0",
+    "hono": "^4.6.4",
+    "zod": "^3.23.8",
+    "dotenv": "^16.4.5",
     "jsonwebtoken": "^9.0.2",
-    "pg": "^8.16.3",
-    "prisma": "^6.16.2",
-    "socket.io": "^4.8.1",
-    "socket.io-client": "^4.8.1"
+    "bcryptjs": "^2.4.3",
+    "@prisma/client": "^5.19.1",
+    "ws": "^8.18.0",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "prisma": "^5.19.1",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2",
+    "eslint": "^9.10.0",
+    "@types/node": "^22.7.4",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/ws": "^8.5.12"
   }
 }
